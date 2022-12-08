@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace _174DungeonGame
 {
@@ -78,9 +80,17 @@ namespace _174DungeonGame
             return MinHP;
         }
 
+        struct Selector
+        {
+            public char direct;
+            public int num;
+        }
+
         static private int Went(string[][] dungeon, int row, int col, int value, int HP, string Path)
         {
-
+            if (MinHP == 1)
+                return HP;
+            
             if (row >= 0 && row < dungeon.Length && col >= 0 && col < dungeon[0].Length)
             {
                 string cell = dungeon[row][col];
@@ -103,7 +113,6 @@ namespace _174DungeonGame
                         return HP;
 
                     // ---
-
                     if (row == dungeon.Length - 1 && col == dungeon[0].Length - 1)
                     {
                         if (MinHP == -1 || HP < MinHP)
@@ -113,24 +122,176 @@ namespace _174DungeonGame
                         Console.WriteLine($"{Path} = end! value = {value}, HP = {HP}");
                         return HP;
                     }
-
                     // ---
+
+                    List<Selector> sels = new List<Selector>();
+                    //var down = (row < dungeon.Length - 1) ? dungeon[row + 1][col] : "x";
+                    //if (down != "x")
+                    //    sels.Add(new Selector { direct = 'd', num = int.Parse(down) });
+
+                    //var right = (col < dungeon[0].Length - 1) ? dungeon[row][col + 1] : "x";
+                    //if (right != "x")
+                    //    sels.Add(new Selector { direct = 'r', num = int.Parse(right) });
+
+                    //var up = (row > 0) ? dungeon[row - 1][col] : "x";
+                    //if (up != "x")
+                    //    sels.Add(new Selector { direct = 'u', num = int.Parse(up) });
+
+                    //var left = (col > 0) ? dungeon[row][col-1] : "x";
+                    //if (left != "x")
+                    //    sels.Add(new Selector { direct = 'd', num = int.Parse(left) });
+
+                    var down = (row < dungeon.Length - 1) ? dungeon[row + 1][col] : "x";
+                    sels.Add(new Selector { direct = 'd', num = (down != "x") ? int.Parse(down) : -9999 });
+
+                    var right = (col < dungeon[0].Length - 1) ? dungeon[row][col + 1] : "x";
+                    sels.Add(new Selector { direct = 'r', num = (right != "x") ? int.Parse(right) : -9999 });
+
+                    var up = (row > 0) ? dungeon[row - 1][col] : "x";
+                    sels.Add(new Selector { direct = 'u', num = (up != "x") ? int.Parse(up) : -9999 });
+
+                    var left = (col > 0) ? dungeon[row][col - 1] : "x";
+                    sels.Add(new Selector { direct = 'l', num = (left != "x") ? int.Parse(left) : -9999 });
 
                     dungeon[row][col] = "x";
                     var dungeon1 = CopyArray(dungeon);
                     var dungeon2 = CopyArray(dungeon);
                     var dungeon3 = CopyArray(dungeon);
                     var dungeon4 = CopyArray(dungeon);
+                    dungeon = new string[][] { };
 
-                    var HP1 = Went(dungeon1, row , col - 1, value, HP, String.Copy(Path + " l"));
-                    var HP2 = Went(dungeon2, row , col + 1, value, HP, String.Copy(Path + " r"));
-                    var HP3 = Went(dungeon3, row - 1, col , value, HP, String.Copy(Path + " u"));
-                    var HP4 = Went(dungeon4, row + 1, col , value, HP, String.Copy(Path + " d"));
+                    var HP4 = HP;
+                    var HP2 = HP;
+                    var HP3 = HP;
+                    var HP1 = HP;
+
+                    string myorder = "";
+                    //string myorder2 = "";
+
+                    // d - 1
+                    // r - 2
+                    // u - 3
+                    // l - 4
+                    foreach (var item in sels.OrderByDescending(x => x.num))
+                    {
+                        myorder += item.direct;
+                        //switch (item.direct)
+                        //{
+                        //    case 'd':
+                        //        myorder2 += "1";
+                        //        break;
+                        //    case 'r':
+                        //        myorder2 += "2";
+                        //        break;
+                        //    case 'u':
+                        //        myorder2 += "3";
+                        //        break;
+                        //    case 'l':
+                        //        myorder2 += "4";
+                        //        break;
+                        //}
+                    }
+                    //int valorder = int.Parse(myorder2);
+
+                    //while (valorder > 0)
+                    //{
+                    //    int item = 0;
+                    //    if (valorder >= 1000)
+                    //    {
+                    //        item = valorder / 1000;
+                    //        valorder -= item * 1000;
+                    //    } else if (valorder >= 100)
+                    //    {
+                    //        item = valorder / 100;
+                    //        valorder -= item * 100;
+                    //    }
+                    //    else if (valorder >= 10)
+                    //    {
+                    //        item = valorder / 10;
+                    //        valorder -= item * 10;
+                    //    } else
+                    //    {
+                    //        item = valorder;
+                    //        valorder = 0;
+                    //    }
+
+                    //    switch (item)
+                    //    {
+                    //        case 1:
+                    //            HP4 = Went(dungeon4, row + 1, col, value, HP, String.Copy(Path + " d"));
+                    //            break;
+                    //        case 2:
+                    //            HP2 = Went(dungeon2, row, col + 1, value, HP, String.Copy(Path + " r"));
+                    //            break;
+                    //        case 3:
+                    //            HP3 = Went(dungeon3, row - 1, col, value, HP, String.Copy(Path + " u"));
+                    //            break;
+                    //        case 4:
+                    //            HP1 = Went(dungeon1, row, col - 1, value, HP, String.Copy(Path + " l"));
+                    //            break;
+                    //    }
+                    //}
+
+                    foreach (var item in myorder)
+                    {
+                        switch (item)
+                        {
+                            case 'd':
+                                HP4 = Went(dungeon4, row + 1, col, value, HP, String.Copy(Path + " d"));
+                                break;
+                            case 'r':
+                                HP2 = Went(dungeon2, row, col + 1, value, HP, String.Copy(Path + " r"));
+                                break;
+                            case 'u':
+                                HP3 = Went(dungeon3, row - 1, col, value, HP, String.Copy(Path + " u"));
+                                break;
+                            case 'l':
+                                HP1 = Went(dungeon1, row, col - 1, value, HP, String.Copy(Path + " l"));
+                                break;
+                        }
+                    }
+
+                    //switch (myorder)
+                    //{
+                    //    case "drul":
+                    //        HP4 = Went(dungeon4, row + 1, col, value, HP, String.Copy(Path + " d"));
+                    //        HP2 = Went(dungeon2, row, col + 1, value, HP, String.Copy(Path + " r"));
+                    //        HP3 = Went(dungeon3, row - 1, col, value, HP, String.Copy(Path + " u"));
+                    //        HP1 = Went(dungeon1, row, col - 1, value, HP, String.Copy(Path + " l"));
+                    //        break;
+                    //    case "rdul":
+                    //        HP2 = Went(dungeon2, row, col + 1, value, HP, String.Copy(Path + " r"));
+                    //        HP4 = Went(dungeon4, row + 1, col, value, HP, String.Copy(Path + " d"));
+                    //        HP3 = Went(dungeon3, row - 1, col, value, HP, String.Copy(Path + " u"));
+                    //        HP1 = Went(dungeon1, row, col - 1, value, HP, String.Copy(Path + " l"));
+                    //        break;
+                    //    case "drlu":
+                    //        HP4 = Went(dungeon4, row + 1, col, value, HP, String.Copy(Path + " d"));
+                    //        HP2 = Went(dungeon2, row, col + 1, value, HP, String.Copy(Path + " r"));
+                    //        HP1 = Went(dungeon1, row, col - 1, value, HP, String.Copy(Path + " l"));
+                    //        HP3 = Went(dungeon3, row - 1, col, value, HP, String.Copy(Path + " u"));
+                    //        break;
+                    //    case "rdlu":
+                    //        HP2 = Went(dungeon2, row, col + 1, value, HP, String.Copy(Path + " r"));
+                    //        HP4 = Went(dungeon4, row + 1, col, value, HP, String.Copy(Path + " d"));
+                    //        HP1 = Went(dungeon1, row, col - 1, value, HP, String.Copy(Path + " l"));
+                    //        HP3 = Went(dungeon3, row - 1, col, value, HP, String.Copy(Path + " u"));
+                    //        break;
+
+                    //    default:
+                    //        HP4 = Went(dungeon4, row + 1, col, value, HP, String.Copy(Path + " d"));
+                    //        HP2 = Went(dungeon2, row, col + 1, value, HP, String.Copy(Path + " r"));
+                    //        HP3 = Went(dungeon3, row - 1, col, value, HP, String.Copy(Path + " u"));
+                    //        HP1 = Went(dungeon1, row, col - 1, value, HP, String.Copy(Path + " l"));
+                    //        break;
+                    //}
 
                     HP = Math.Min(Math.Min(HP1, HP2), Math.Min(HP3, HP4));
                     return HP;
                 }
             }
+
+            dungeon = new string[][] { };
             return HP;
         }
 
